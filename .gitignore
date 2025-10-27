@@ -1,0 +1,25 @@
+# 编译产物
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+lottery_system
+
+# 数据文件
+data/
+
+# IDE配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.log

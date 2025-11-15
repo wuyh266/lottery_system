@@ -100,10 +100,10 @@ func GetPrizes(c *gin.Context) {
 	})
 }
 
-// SetDrawTime 设置开奖时间
+
 func SetDrawTime(c *gin.Context) {
 	var req struct {
-		DrawTime string `json:"draw_time" binding:"required"` // 格式: "2006-01-02T15:04:05Z07:00" 或 RFC3339格式
+		DrawTime string `json:"draw_time" binding:"required"` // 格式: "2006-01-02T15:04:05Z07:00" 
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "请提供开奖时间"})
@@ -111,7 +111,6 @@ func SetDrawTime(c *gin.Context) {
 	}
 	drawTime, err := time.Parse(time.RFC3339, req.DrawTime)
 	if err != nil {
-		// 尝试其他常见格式
 		drawTime, err = time.Parse("2006-01-02 15:04:05", req.DrawTime)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "时间格式错误，请使用 RFC3339 格式 (例如: 2024-01-01T12:00:00+08:00)"})
@@ -128,7 +127,6 @@ func SetDrawTime(c *gin.Context) {
 	})
 }
 
-// GetDrawTime 获取开奖时间
 func GetDrawTime(c *gin.Context) {
 	drawTime := store.GetDrawTime()
 	if drawTime == nil {

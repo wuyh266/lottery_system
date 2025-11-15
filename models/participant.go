@@ -15,7 +15,7 @@ type Lottery struct {
 	IsDrawn         bool          `json:"is_drawn"`
 	Prizes          []Prize       `json:"prizes"`
 	UnclaimedPrizes []Prize       `json:"unclaimed_prizes"`
-	DrawTime        *time.Time    `json:"draw_time,omitempty"` // 开奖时间，nil表示未设置
+	DrawTime        *time.Time    `json:"draw_time,omitempty"` 
 }
 
 type Prize struct {

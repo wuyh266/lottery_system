@@ -114,7 +114,7 @@ func (s *Storage) DrawWinner() ([]models.Participant, error) {
 			prizeList[i], prizeList[j] = prizeList[j], prizeList[i]
 		}
 
-		// 给参与者分配奖品
+		
 		for i := 0; i < numParticipants; i++ {
 			participants[i].IsWinner = true
 			if i < len(prizeList) {

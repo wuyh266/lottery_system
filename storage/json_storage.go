@@ -23,6 +23,7 @@ func NewStorage() *Storage {
 			IsDrawn:         false,
 			Prizes:          make([]models.Prize, 0),
 			UnclaimedPrizes: make([]models.Prize, 0),
+			DrawTime:        nil,
 		},
 	}
 }
@@ -79,8 +80,6 @@ func (s *Storage) DrawWinner() ([]models.Participant, error) {
 	if len(s.lottery.Prizes) == 0 {
 		return nil, fmt.Errorf("no prizes available")
 	}
-
-	// 打乱参与者顺序
 	rand.Seed(time.Now().UnixNano())
 	participants := make([]models.Participant, len(s.lottery.Participants))
 	copy(participants, s.lottery.Participants)
@@ -88,8 +87,6 @@ func (s *Storage) DrawWinner() ([]models.Participant, error) {
 		j := rand.Intn(i + 1)
 		participants[i], participants[j] = participants[j], participants[i]
 	}
-
-	// 计算奖品总数
 	totalPrizes := 0
 	for _, prize := range s.lottery.Prizes {
 		totalPrizes += prize.Quantity
@@ -97,18 +94,14 @@ func (s *Storage) DrawWinner() ([]models.Participant, error) {
 
 	numParticipants := len(participants)
 	winners := make([]models.Participant, 0)
-
-	// 复制奖品列表用于分配
 	availablePrizes := make([]models.Prize, len(s.lottery.Prizes))
 	copy(availablePrizes, s.lottery.Prizes)
 
 	if numParticipants == 1 {
-		// 只有1个参与者，获得所有奖品
 		participants[0].IsWinner = true
 		participants[0].Prizes = availablePrizes
 		winners = append(winners, participants[0])
 	} else {
-		// 展开奖品为单个奖品列表
 		prizeList := make([]models.Prize, 0)
 		for _, prize := range availablePrizes {
 			for q := 0; q < prize.Quantity; q++ {
@@ -116,7 +109,6 @@ func (s *Storage) DrawWinner() ([]models.Participant, error) {
 			}
 		}
 
-		// 打乱奖品顺序
 		for i := len(prizeList) - 1; i > 0; i-- {
 			j := rand.Intn(i + 1)
 			prizeList[i], prizeList[j] = prizeList[j], prizeList[i]
@@ -145,6 +137,7 @@ func (s *Storage) Reset() error {
 		Prizes:          make([]models.Prize, 0),
 		UnclaimedPrizes: make([]models.Prize, 0),
 		IsDrawn:         false,
+		DrawTime:        nil,
 	}
 	return s.Save()
 }
@@ -162,4 +155,32 @@ func (s *Storage) AddPrize(name, description string, quantity int) error {
 }
 func (s *Storage) GetPrizes() []models.Prize {
 	return s.lottery.Prizes
+}
+func (s *Storage) SetDrawTime(drawTime time.Time) error {
+	if s.lottery.IsDrawn {
+		return fmt.Errorf("cannot set draw time after lottery is drawn")
+	}
+	s.lottery.DrawTime = &drawTime
+	return s.Save()
+}
+
+
+func (s *Storage) GetDrawTime() *time.Time {
+	return s.lottery.DrawTime
+}
+
+func (s *Storage) CheckAndAutoDraw() error {
+	if s.lottery.IsDrawn {
+		return nil 
+	}
+	if s.lottery.DrawTime == nil {
+		return nil 
+	}
+	now := time.Now()
+	if now.After(*s.lottery.DrawTime) || now.Equal(*s.lottery.DrawTime) {
+		
+		_, err := s.DrawWinner()
+		return err
+	}
+	return nil
 }

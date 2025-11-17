@@ -116,9 +116,10 @@ func (s *Storage) DrawWinner() ([]models.Participant, error) {
 
 		
 		for i := 0; i < numParticipants; i++ {
-			participants[i].IsWinner = true
+			//participants[i].IsWinner = true
 			if i < len(prizeList) {
 				participants[i].Prizes = append(participants[i].Prizes, prizeList[i])
+				participants[i].IsWinner = true
 			}
 			winners = append(winners, participants[i])
 		}
